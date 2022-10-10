@@ -259,12 +259,19 @@ class Drawer extends StatelessWidget {
       explicitChildNodes: true,
       label: label,
       child: ConstrainedBox(
-        constraints: BoxConstraints.expand(width: width ?? drawerTheme.width ?? _kWidth),
+        constraints:
+            BoxConstraints.expand(width: width ?? drawerTheme.width ?? _kWidth),
         child: Material(
           color: backgroundColor ?? drawerTheme.backgroundColor,
           elevation: elevation ?? drawerTheme.elevation ?? 16.0,
-          shadowColor: shadowColor ?? drawerTheme.shadowColor ?? (useMaterial3 ? Colors.transparent : Theme.of(context).shadowColor),
-          surfaceTintColor: surfaceTintColor ?? drawerTheme.surfaceTintColor ?? (useMaterial3 ? Theme.of(context).colorScheme.surfaceTint : null),
+          shadowColor: shadowColor ??
+              drawerTheme.shadowColor ??
+              (useMaterial3
+                  ? Colors.transparent
+                  : Theme.of(context).shadowColor),
+          surfaceTintColor: surfaceTintColor ??
+              drawerTheme.surfaceTintColor ??
+              (useMaterial3 ? Theme.of(context).colorScheme.surfaceTint : null),
           shape: shape ?? drawerTheme.shape,
           child: child,
         ),
@@ -307,10 +314,10 @@ class DrawerController extends StatefulWidget {
     this.scrimColor,
     this.edgeDragWidth,
     this.enableOpenDragGesture = true,
-  }) : assert(child != null),
-       assert(dragStartBehavior != null),
-       assert(alignment != null),
-       super(key: key);
+  })  : assert(child != null),
+        assert(dragStartBehavior != null),
+        assert(alignment != null),
+        super(key: key);
 
   /// The widget below this widget in the tree.
   ///
@@ -386,7 +393,8 @@ class DrawerController extends StatefulWidget {
 /// State for a [DrawerController].
 ///
 /// Typically used by a [Scaffold] to [open] and [close] the drawer.
-class DrawerControllerState extends State<DrawerController> with SingleTickerProviderStateMixin {
+class DrawerControllerState extends State<DrawerController>
+    with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
@@ -420,7 +428,7 @@ class DrawerControllerState extends State<DrawerController> with SingleTickerPro
       _scrimColorTween = _buildScrimColorTween();
     }
     if (widget.isDrawerOpen != oldWidget.isDrawerOpen) {
-      switch(_controller.status) {
+      switch (_controller.status) {
         case AnimationStatus.completed:
         case AnimationStatus.dismissed:
           _controller.value = widget.isDrawerOpen ? 1.0 : 0.0;
@@ -445,7 +453,9 @@ class DrawerControllerState extends State<DrawerController> with SingleTickerPro
     if (_historyEntry == null) {
       final ModalRoute<dynamic>? route = ModalRoute.of(context);
       if (route != null) {
-        _historyEntry = LocalHistoryEntry(onRemove: _handleHistoryEntryRemoved, impliesAppBarDismissal: false);
+        _historyEntry = LocalHistoryEntry(
+            onRemove: _handleHistoryEntryRemoved,
+            impliesAppBarDismissal: false);
         route.addLocalHistoryEntry(_historyEntry!);
         FocusScope.of(context).setFirstFocus(_focusScopeNode);
       }
@@ -494,7 +504,8 @@ class DrawerControllerState extends State<DrawerController> with SingleTickerPro
   final GlobalKey _drawerKey = GlobalKey();
 
   double get _width {
-    final RenderBox? box = _drawerKey.currentContext?.findRenderObject() as RenderBox?;
+    final RenderBox? box =
+        _drawerKey.currentContext?.findRenderObject() as RenderBox?;
     if (box != null) {
       return box.size.width;
     }
@@ -578,9 +589,9 @@ class DrawerControllerState extends State<DrawerController> with SingleTickerPro
   ColorTween _buildScrimColorTween() {
     return ColorTween(
       begin: Colors.transparent,
-      end: widget.scrimColor
-          ?? DrawerTheme.of(context).scrimColor
-          ?? Colors.black54,
+      end: widget.scrimColor ??
+          DrawerTheme.of(context).scrimColor ??
+          Colors.black54,
     );
   }
 
@@ -626,12 +637,12 @@ class DrawerControllerState extends State<DrawerController> with SingleTickerPro
     if (widget.edgeDragWidth == null) {
       switch (textDirection) {
         case TextDirection.ltr:
-          dragAreaWidth = _kEdgeDragWidth +
-            (drawerIsStart ? padding.left : padding.right);
+          dragAreaWidth =
+              _kEdgeDragWidth + (drawerIsStart ? padding.left : padding.right);
           break;
         case TextDirection.rtl:
-          dragAreaWidth = _kEdgeDragWidth +
-            (drawerIsStart ? padding.right : padding.left);
+          dragAreaWidth =
+              _kEdgeDragWidth + (drawerIsStart ? padding.right : padding.left);
           break;
       }
     }
@@ -669,19 +680,45 @@ class DrawerControllerState extends State<DrawerController> with SingleTickerPro
       }
       assert(platformHasBackButton != null);
 
-      final Widget child =  RepaintBoundary(
+      final Drawer drawer = widget.child as Drawer;
+      final double drawerWidth =
+          drawer.width ?? DrawerTheme.of(context).width ?? 304.0;
+
+      final Widget child = RepaintBoundary(
         child: Stack(
           children: <Widget>[
             BlockSemantics(
               child: ExcludeSemantics(
                 // On Android, the back button is used to dismiss a modal.
-                excluding: platformHasBackButton,
+                // excluding: platformHasBackButton,
+                excluding: false,
                 child: GestureDetector(
                   onTap: close,
                   child: Semantics(
-                    label: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-                    child: Container( // The drawer's "scrim"
+                    label: MaterialLocalizations.of(context)
+                        .modalBarrierDismissLabel,
+                    child: Container(
+                      // The drawer's "scrim"
                       color: _scrimColorTween.evaluate(_controller),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: BlockSemantics(
+                  child: GestureDetector(
+                    onTap: close,
+                    child: Semantics(
+                      label: 'Close Drawer',
+                      child: LayoutBuilder(
+                          builder: (_, BoxConstraints constraints) {
+                        return Container(
+                          width: constraints.maxWidth - drawerWidth,
+                        );
+                      }),
                     ),
                   ),
                 ),

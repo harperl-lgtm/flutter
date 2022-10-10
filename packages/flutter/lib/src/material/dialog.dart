@@ -22,7 +22,8 @@ import 'theme_data.dart';
 // enum Department { treasury, state }
 // late BuildContext context;
 
-const EdgeInsets _defaultInsetPadding = EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0);
+const EdgeInsets _defaultInsetPadding =
+    EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0);
 
 /// A Material Design dialog.
 ///
@@ -54,8 +55,8 @@ class Dialog extends StatelessWidget {
     this.shape,
     this.alignment,
     this.child,
-  }) : assert(clipBehavior != null),
-       assert(elevation == null || elevation >= 0.0);
+  })  : assert(clipBehavior != null),
+        assert(elevation == null || elevation >= 0.0);
 
   /// {@template flutter.material.dialog.backgroundColor}
   /// The background color of the surface of this [Dialog].
@@ -188,9 +189,12 @@ class Dialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final DialogTheme dialogTheme = DialogTheme.of(context);
-    final DialogTheme defaults = theme.useMaterial3 ? _DialogDefaultsM3(context) : _DialogDefaultsM2(context);
+    final DialogTheme defaults = theme.useMaterial3
+        ? _DialogDefaultsM3(context)
+        : _DialogDefaultsM2(context);
 
-    final EdgeInsets effectivePadding = MediaQuery.of(context).viewInsets + (insetPadding ?? EdgeInsets.zero);
+    final EdgeInsets effectivePadding =
+        MediaQuery.of(context).viewInsets + (insetPadding ?? EdgeInsets.zero);
     return AnimatedPadding(
       padding: effectivePadding,
       duration: insetAnimationDuration,
@@ -206,10 +210,17 @@ class Dialog extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 280.0),
             child: Material(
-              color: backgroundColor ?? dialogTheme.backgroundColor ?? Theme.of(context).dialogBackgroundColor,
-              elevation: elevation ?? dialogTheme.elevation ?? defaults.elevation!,
-              shadowColor: shadowColor ?? dialogTheme.shadowColor ?? defaults.shadowColor,
-              surfaceTintColor: surfaceTintColor ?? dialogTheme.surfaceTintColor ?? defaults.surfaceTintColor,
+              color: backgroundColor ??
+                  dialogTheme.backgroundColor ??
+                  Theme.of(context).dialogBackgroundColor,
+              elevation:
+                  elevation ?? dialogTheme.elevation ?? defaults.elevation!,
+              shadowColor: shadowColor ??
+                  dialogTheme.shadowColor ??
+                  defaults.shadowColor,
+              surfaceTintColor: surfaceTintColor ??
+                  dialogTheme.surfaceTintColor ??
+                  defaults.surfaceTintColor,
               shape: shape ?? dialogTheme.shape ?? defaults.shape!,
               type: MaterialType.card,
               clipBehavior: clipBehavior,
@@ -584,7 +595,9 @@ class AlertDialog extends StatelessWidget {
     assert(debugCheckHasMaterialLocalizations(context));
     final ThemeData theme = Theme.of(context);
     final DialogTheme dialogTheme = DialogTheme.of(context);
-    final DialogTheme defaults = theme.useMaterial3 ? _DialogDefaultsM3(context) : _DialogDefaultsM2(context);
+    final DialogTheme defaults = theme.useMaterial3
+        ? _DialogDefaultsM3(context)
+        : _DialogDefaultsM2(context);
 
     String? label = semanticLabel;
     switch (theme.platform) {
@@ -600,7 +613,8 @@ class AlertDialog extends StatelessWidget {
 
     // The paddingScaleFactor is used to adjust the padding of Dialog's
     // children.
-    final double paddingScaleFactor = _paddingScaleFactor(MediaQuery.of(context).textScaleFactor);
+    final double paddingScaleFactor =
+        _paddingScaleFactor(MediaQuery.of(context).textScaleFactor);
     final TextDirection? textDirection = Directionality.maybeOf(context);
 
     Widget? iconWidget;
@@ -615,9 +629,14 @@ class AlertDialog extends StatelessWidget {
         left: 24.0,
         top: 24.0,
         right: 24.0,
-        bottom: belowIsTitle ? 16.0 : belowIsContent ? 0.0 : 24.0,
+        bottom: belowIsTitle
+            ? 16.0
+            : belowIsContent
+                ? 0.0
+                : 24.0,
       );
-      final EdgeInsets effectiveIconPadding = iconPadding?.resolve(textDirection) ?? defaultIconPadding;
+      final EdgeInsets effectiveIconPadding =
+          iconPadding?.resolve(textDirection) ?? defaultIconPadding;
       iconWidget = Padding(
         padding: EdgeInsets.only(
           left: effectiveIconPadding.left * paddingScaleFactor,
@@ -641,16 +660,21 @@ class AlertDialog extends StatelessWidget {
         right: 24.0,
         bottom: content == null ? 20.0 : 0.0,
       );
-      final EdgeInsets effectiveTitlePadding = titlePadding?.resolve(textDirection) ?? defaultTitlePadding;
+      final EdgeInsets effectiveTitlePadding =
+          titlePadding?.resolve(textDirection) ?? defaultTitlePadding;
       titleWidget = Padding(
         padding: EdgeInsets.only(
           left: effectiveTitlePadding.left * paddingScaleFactor,
           right: effectiveTitlePadding.right * paddingScaleFactor,
-          top: icon == null ? effectiveTitlePadding.top * paddingScaleFactor : effectiveTitlePadding.top,
+          top: icon == null
+              ? effectiveTitlePadding.top * paddingScaleFactor
+              : effectiveTitlePadding.top,
           bottom: effectiveTitlePadding.bottom,
         ),
         child: DefaultTextStyle(
-          style: titleTextStyle ?? dialogTheme.titleTextStyle ?? defaults.titleTextStyle!,
+          style: titleTextStyle ??
+              dialogTheme.titleTextStyle ??
+              defaults.titleTextStyle!,
           textAlign: icon == null ? TextAlign.start : TextAlign.center,
           child: Semantics(
             // For iOS platform, the focus always lands on the title.
@@ -670,18 +694,21 @@ class AlertDialog extends StatelessWidget {
         right: 24.0,
         bottom: 24.0,
       );
-      final EdgeInsets effectiveContentPadding = contentPadding?.resolve(textDirection) ?? defaultContentPadding;
+      final EdgeInsets effectiveContentPadding =
+          contentPadding?.resolve(textDirection) ?? defaultContentPadding;
       contentWidget = Padding(
         padding: EdgeInsets.only(
           left: effectiveContentPadding.left * paddingScaleFactor,
           right: effectiveContentPadding.right * paddingScaleFactor,
           top: title == null && icon == null
-            ? effectiveContentPadding.top * paddingScaleFactor
-            : effectiveContentPadding.top,
+              ? effectiveContentPadding.top * paddingScaleFactor
+              : effectiveContentPadding.top,
           bottom: effectiveContentPadding.bottom,
         ),
         child: DefaultTextStyle(
-          style: contentTextStyle ?? dialogTheme.contentTextStyle ?? defaults.contentTextStyle!,
+          style: contentTextStyle ??
+              dialogTheme.contentTextStyle ??
+              defaults.contentTextStyle!,
           child: Semantics(
             container: true,
             child: content,
@@ -693,13 +720,16 @@ class AlertDialog extends StatelessWidget {
     if (actions != null) {
       final double spacing = (buttonPadding?.horizontal ?? 16) / 2;
       actionsWidget = Padding(
-        padding: actionsPadding ?? dialogTheme.actionsPadding ?? (
-          theme.useMaterial3 ? defaults.actionsPadding! : defaults.actionsPadding!.add(EdgeInsets.all(spacing))
-        ),
+        padding: actionsPadding ??
+            dialogTheme.actionsPadding ??
+            (theme.useMaterial3
+                ? defaults.actionsPadding!
+                : defaults.actionsPadding!.add(EdgeInsets.all(spacing))),
         child: OverflowBar(
           alignment: actionsAlignment ?? MainAxisAlignment.end,
           spacing: spacing,
-          overflowAlignment: actionsOverflowAlignment ?? OverflowBarAlignment.end,
+          overflowAlignment:
+              actionsOverflowAlignment ?? OverflowBarAlignment.end,
           overflowDirection: actionsOverflowDirection ?? VerticalDirection.down,
           overflowSpacing: actionsOverflowButtonSpacing ?? 0,
           children: actions!,
@@ -724,8 +754,7 @@ class AlertDialog extends StatelessWidget {
               ),
             ),
           ),
-        if (actions != null)
-          actionsWidget!,
+        if (actions != null) actionsWidget!,
       ];
     } else {
       columnChildren = <Widget>[
@@ -830,7 +859,8 @@ class SimpleDialogOption extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       child: Padding(
-        padding: padding ?? const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
+        padding: padding ??
+            const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
         child: child,
       ),
     );
@@ -931,8 +961,8 @@ class SimpleDialog extends StatelessWidget {
     this.clipBehavior = Clip.none,
     this.shape,
     this.alignment,
-  }) : assert(titlePadding != null),
-       assert(contentPadding != null);
+  })  : assert(titlePadding != null),
+        assert(contentPadding != null);
 
   /// The (optional) title of the dialog is displayed in a large font at the top
   /// of the dialog.
@@ -1033,21 +1063,27 @@ class SimpleDialog extends StatelessWidget {
 
     // The paddingScaleFactor is used to adjust the padding of Dialog
     // children.
-    final double paddingScaleFactor = _paddingScaleFactor(MediaQuery.of(context).textScaleFactor);
+    final double paddingScaleFactor =
+        _paddingScaleFactor(MediaQuery.of(context).textScaleFactor);
     final TextDirection? textDirection = Directionality.maybeOf(context);
 
     Widget? titleWidget;
     if (title != null) {
-      final EdgeInsets effectiveTitlePadding = titlePadding.resolve(textDirection);
+      final EdgeInsets effectiveTitlePadding =
+          titlePadding.resolve(textDirection);
       titleWidget = Padding(
         padding: EdgeInsets.only(
           left: effectiveTitlePadding.left * paddingScaleFactor,
           right: effectiveTitlePadding.right * paddingScaleFactor,
           top: effectiveTitlePadding.top * paddingScaleFactor,
-          bottom: children == null ? effectiveTitlePadding.bottom * paddingScaleFactor : effectiveTitlePadding.bottom,
+          bottom: children == null
+              ? effectiveTitlePadding.bottom * paddingScaleFactor
+              : effectiveTitlePadding.bottom,
         ),
         child: DefaultTextStyle(
-          style: titleTextStyle ?? DialogTheme.of(context).titleTextStyle ?? theme.textTheme.titleLarge!,
+          style: titleTextStyle ??
+              DialogTheme.of(context).titleTextStyle ??
+              theme.textTheme.titleLarge!,
           child: Semantics(
             // For iOS platform, the focus always lands on the title.
             // Set nameRoute to false to avoid title being announce twice.
@@ -1061,13 +1097,16 @@ class SimpleDialog extends StatelessWidget {
 
     Widget? contentWidget;
     if (children != null) {
-      final EdgeInsets effectiveContentPadding = contentPadding.resolve(textDirection);
+      final EdgeInsets effectiveContentPadding =
+          contentPadding.resolve(textDirection);
       contentWidget = Flexible(
         child: SingleChildScrollView(
           padding: EdgeInsets.only(
             left: effectiveContentPadding.left * paddingScaleFactor,
             right: effectiveContentPadding.right * paddingScaleFactor,
-            top: title == null ? effectiveContentPadding.top * paddingScaleFactor : effectiveContentPadding.top,
+            top: title == null
+                ? effectiveContentPadding.top * paddingScaleFactor
+                : effectiveContentPadding.top,
             bottom: effectiveContentPadding.bottom * paddingScaleFactor,
           ),
           child: ListBody(children: children!),
@@ -1113,7 +1152,11 @@ class SimpleDialog extends StatelessWidget {
   }
 }
 
-Widget _buildMaterialDialogTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+Widget _buildMaterialDialogTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child) {
   return FadeTransition(
     opacity: CurvedAnimation(
       parent: animation,
@@ -1237,7 +1280,8 @@ Future<T?> showDialog<T>({
     ).context,
   );
 
-  return Navigator.of(context, rootNavigator: useRootNavigator).push<T>(DialogRoute<T>(
+  return Navigator.of(context, rootNavigator: useRootNavigator)
+      .push<T>(DialogRoute<T>(
     context: context,
     builder: builder,
     barrierColor: barrierColor,
@@ -1255,8 +1299,7 @@ bool _debugIsActive(BuildContext context) {
     throw FlutterError.fromParts(<DiagnosticsNode>[
       ErrorSummary('This BuildContext is no longer valid.'),
       ErrorDescription(
-        'The showDialog function context parameter is a BuildContext that is no longer valid.'
-      ),
+          'The showDialog function context parameter is a BuildContext that is no longer valid.'),
       ErrorHint(
         'This can commonly occur when the showDialog function is called after awaiting a Future. '
         'In this situation the BuildContext might refer to a widget that has already been disposed during the await. '
@@ -1325,20 +1368,22 @@ class DialogRoute<T> extends RawDialogRoute<T> {
     bool useSafeArea = true,
     super.settings,
     super.anchorPoint,
-  }) : assert(barrierDismissible != null),
-       super(
-         pageBuilder: (BuildContext buildContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-           final Widget pageChild = Builder(builder: builder);
-           Widget dialog = themes?.wrap(pageChild) ?? pageChild;
-           if (useSafeArea) {
-             dialog = SafeArea(child: dialog);
-           }
-           return dialog;
-         },
-         barrierLabel: barrierLabel ?? MaterialLocalizations.of(context).modalBarrierDismissLabel,
-         transitionDuration: const Duration(milliseconds: 150),
-         transitionBuilder: _buildMaterialDialogTransitions,
-       );
+  })  : assert(barrierDismissible != null),
+        super(
+          pageBuilder: (BuildContext buildContext, Animation<double> animation,
+              Animation<double> secondaryAnimation) {
+            final Widget pageChild = Builder(builder: builder);
+            Widget dialog = themes?.wrap(pageChild) ?? pageChild;
+            if (useSafeArea) {
+              dialog = SafeArea(child: dialog);
+            }
+            return dialog;
+          },
+          barrierLabel: barrierLabel ??
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          transitionDuration: const Duration(milliseconds: 150),
+          transitionBuilder: _buildMaterialDialogTransitions,
+        );
 }
 
 double _paddingScaleFactor(double textScaleFactor) {
@@ -1351,13 +1396,14 @@ double _paddingScaleFactor(double textScaleFactor) {
 // Hand coded defaults based on Material Design 2.
 class _DialogDefaultsM2 extends DialogTheme {
   _DialogDefaultsM2(this.context)
-    : _textTheme = Theme.of(context).textTheme,
-      _iconTheme = Theme.of(context).iconTheme,
-      super(
-        alignment: Alignment.center,
-        elevation: 24.0,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(4.0))),
-      );
+      : _textTheme = Theme.of(context).textTheme,
+        _iconTheme = Theme.of(context).iconTheme,
+        super(
+          alignment: Alignment.center,
+          elevation: 24.0,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(4.0))),
+        );
 
   final BuildContext context;
   final TextTheme _textTheme;
@@ -1393,11 +1439,16 @@ class _DialogDefaultsM2 extends DialogTheme {
 
 class _DialogDefaultsM3 extends DialogTheme {
   _DialogDefaultsM3(this.context)
-    : super(
-        alignment: Alignment.center,
-        elevation: 6.0,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(28.0), topRight: Radius.circular(28.0), bottomLeft: Radius.circular(28.0), bottomRight: Radius.circular(28.0))),
-      );
+      : super(
+          alignment: Alignment.center,
+          elevation: 6.0,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(28.0),
+                  topRight: Radius.circular(28.0),
+                  bottomLeft: Radius.circular(28.0),
+                  bottomRight: Radius.circular(28.0))),
+        );
 
   final BuildContext context;
   late final ColorScheme _colors = Theme.of(context).colorScheme;
@@ -1422,7 +1473,8 @@ class _DialogDefaultsM3 extends DialogTheme {
   TextStyle? get contentTextStyle => _textTheme.bodyMedium;
 
   @override
-  EdgeInsetsGeometry? get actionsPadding => const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0);
+  EdgeInsetsGeometry? get actionsPadding =>
+      const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0);
 }
 
 // END GENERATED TOKEN PROPERTIES - Dialog

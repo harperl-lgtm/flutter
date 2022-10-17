@@ -1574,12 +1574,13 @@ class _TextFieldState extends State<TextField>
       onExit: (PointerExitEvent event) => _handleHover(false),
       child: TextFieldTapRegion(
         child: IgnorePointer(
+          ignoringSemantics: false,
           ignoring: !_isEnabled,
           child: AnimatedBuilder(
             animation: controller, // changes the _currentLength
             builder: (BuildContext context, Widget? child) {
               return Semantics(
-                label: 'text field',
+                // onSetText: (_) {},
                 maxValueLength: semanticsMaxValueLength,
                 currentValueLength: _currentLength,
                 onTap: widget.readOnly

@@ -391,6 +391,7 @@ class DataTable extends StatelessWidget {
   DataTable({
     super.key,
     required this.columns,
+    // required this.scrollController,
     this.sortColumnIndex,
     this.sortAscending = true,
     this.onSelectAll,
@@ -419,6 +420,8 @@ class DataTable extends StatelessWidget {
         assert(!rows.any((DataRow row) => row.cells.length != columns.length)),
         assert(dividerThickness == null || dividerThickness >= 0),
         _onlyTextColumn = _initOnlyTextColumn(columns);
+
+  // final ScrollController scrollController;
 
   /// The configuration and labels for the columns in the table.
   final List<DataColumn> columns;
@@ -833,7 +836,10 @@ class DataTable extends StatelessWidget {
     required GestureTapCancelCallback? onTapCancel,
     required MaterialStateProperty<Color?>? overlayColor,
     required GestureLongPressCallback? onRowLongPress,
+    required int row,
+    required int column,
   }) {
+    final GlobalKey cellKey = GlobalKey();
     final ThemeData themeData = Theme.of(context);
     final DataTableThemeData dataTableTheme = DataTableTheme.of(context);
     if (showEditIcon) {
@@ -859,7 +865,16 @@ class DataTable extends StatelessWidget {
       alignment:
           numeric ? Alignment.centerRight : AlignmentDirectional.centerStart,
       child: Semantics(
-        label: rowHeading + columnHeading,
+        key: cellKey,
+        onDidGainAccessibilityFocus: () {
+          print('$row $column');
+          Scrollable.ensureVisible(
+            cellKey.currentContext!,
+            duration: const Duration(microseconds: 500),
+            alignment: 0.5,
+          );
+        },
+        label: rowHeading + ' ' + columnHeading,
         child: DefaultTextStyle(
           style: effectiveDataTextStyle.copyWith(
             color: placeholder
@@ -1100,6 +1115,8 @@ class DataTable extends StatelessWidget {
               : () => row.onSelectChanged?.call(!row.selected),
           overlayColor: row.color ?? effectiveDataRowColor,
           onRowLongPress: row.onLongPress,
+          row: rowIndex,
+          column: displayColumnIndex,
         );
         rowIndex += 1;
       }

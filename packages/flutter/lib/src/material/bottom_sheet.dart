@@ -2,9 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'bottom_sheet_theme.dart';
@@ -212,6 +214,24 @@ class _BottomSheetState extends State<BottomSheet> {
       widget.animationController!.status == AnimationStatus.reverse;
 
   void _handleDragStart(DragStartDetails details) {
+    DragStartDetails newDetails = DragStartDetails(
+      sourceTimeStamp: details.sourceTimeStamp,
+      globalPosition:
+          Offset(details.globalPosition.dx, details.globalPosition.dy + 50),
+      localPosition: details.localPosition,
+      kind: details.kind,
+    );
+    print('${details.globalPosition.dx} ${details.globalPosition.dy}');
+    // WidgetsBinding.instance.handlePointerEvent(
+    //     PointerDownEvent(pointer: 0, position: newDetails.globalPosition));
+    WidgetsBinding.instance.handlePointerEvent(
+        PointerMoveEvent(pointer: 0, position: newDetails.globalPosition));
+    // GestureBinding.instance.handlePointerEvent(
+    //     PointerRemovedEvent(position: details.globalPosition));
+    // GestureBinding.instance.handlePointerEvent(
+    //     PointerDownEvent(position: newDetails.globalPosition));
+    // GestureBinding.instance.handlePointerEvent(
+    //     PointerMoveEvent(position: newDetails.globalPosition));
     widget.onDragStart?.call(details);
   }
 
@@ -294,6 +314,7 @@ class _BottomSheetState extends State<BottomSheet> {
         widget.shape ?? bottomSheetTheme.shape ?? defaults.shape;
     final Clip clipBehavior =
         widget.clipBehavior ?? bottomSheetTheme.clipBehavior ?? Clip.none;
+    final GlobalKey contentKey = GlobalKey();
 
     Widget bottomSheet = Material(
       key: _childKey,
@@ -304,22 +325,120 @@ class _BottomSheetState extends State<BottomSheet> {
       clipBehavior: clipBehavior,
       child: NotificationListener<DraggableScrollableNotification>(
         onNotification: extentChanged,
-        child: Center(
-          heightFactor: 1,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (widget.enableDrag)
-                _DragHandle(
+
+        // child: Center(
+        //   heightFactor: 1,
+        //   child: SizedBox(
+        //     height: _childHeight + 50,
+        //     child: Column(
+        //       mainAxisSize: MainAxisSize.min,
+        //       children: [
+        //         if (widget.enableDrag)
+        //           _DragHandle(
+        //             onSemanticsTap: widget.onClosing,
+        //           ),
+        //         // Align(
+        //         //   alignment: Alignment.topLeft,
+        //         //   child:
+        //           NotificationListener<DraggableScrollableNotification>(
+        //             onNotification: extentChanged,
+        //             child: Material(
+        //               key: _childKey,
+        //               child: widget.builder(context),
+        //             ),
+        //           ),
+        //         // ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
+
+        // child: Stack(
+        //   children: [
+        //     Padding(
+        //       key: contentKey,
+        //       padding: EdgeInsets.only(
+        //         top: 50,
+        //       ),
+        //       child: NotificationListener<DraggableScrollableNotification>(
+        //         onNotification: extentChanged,
+        //         child: Material(
+        //           key: _childKey,
+        //           child: widget.builder(context),
+        //         ),
+        //       ),
+        //     ),
+        //     SizedBox(
+        //       height: 50,
+        //       child: Align(
+        //         alignment: Alignment.topCenter,
+        //         child: _DragHandle(
+        //           onSemanticsTap: widget.onClosing,
+        //         ),
+        //       ),
+        //     ),
+        // child: Stack(
+        //   children: [
+        //     Padding(
+        //       key: contentKey,
+        //       padding: EdgeInsets.only(
+        //         top: 0,
+        //       ),
+        //       child: Material(
+        //         // key: _childKey,
+        //         child: widget.builder(context),
+        //       ),
+        //     ),
+        //     SizedBox(
+        //       height: 50,
+        //       child: Align(
+        //         alignment: Alignment.topCenter,
+        //         child: _DragHandle(
+        //           onSemanticsTap: widget.onClosing,
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
+
+        child: Stack(
+          children: [
+            // Padding(
+            //   key: contentKey,
+            //   padding: EdgeInsets.only(
+            //     top: 50,
+            //   ),
+            //   child:
+            Row(
+              children: [
+                Expanded(
+                    child: _SheetPadding(
+                  padding: const EdgeInsets.only(
+                    top: 50,
+                  ),
+                  child: GestureDetector(
+                      onTap: () => print('child tapped!'),
+                      child: widget.builder(context)),
+                )),
+              ],
+            ),
+            // child: Material(
+            //   child: widget.builder(context),
+            // ),
+            // ),
+            SizedBox(
+              height: 50,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: _DragHandle(
                   onSemanticsTap: widget.onClosing,
                 ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: widget.builder(context),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+
+        //child: widget.builder(context),
       ),
     );
 
@@ -350,6 +469,237 @@ class _BottomSheetState extends State<BottomSheet> {
 
 // See scaffold.dart
 
+class _SheetPadding extends SingleChildRenderObjectWidget {
+  const _SheetPadding({
+    super.key,
+    required this.padding,
+    super.child,
+  }) : assert(padding != null);
+
+  final EdgeInsetsGeometry padding;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderSheetPadding(
+        padding: padding, textDirection: Directionality.maybeOf(context));
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderPadding renderObject) {
+    renderObject
+      ..padding = padding
+      ..textDirection = Directionality.maybeOf(context);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding));
+  }
+}
+
+class _RenderSheetPadding extends RenderShiftedBox {
+  /// Creates a render object that insets its child.
+  ///
+  /// The [padding] argument must not be null and must have non-negative insets.
+  _RenderSheetPadding({
+    required EdgeInsetsGeometry padding,
+    TextDirection? textDirection,
+    RenderBox? child,
+  })  : assert(padding != null),
+        assert(padding.isNonNegative),
+        _textDirection = textDirection,
+        _padding = padding,
+        super(child);
+
+  EdgeInsets? _resolvedPadding;
+
+  void _resolve() {
+    if (_resolvedPadding != null) {
+      return;
+    }
+    _resolvedPadding = padding.resolve(textDirection);
+    assert(_resolvedPadding!.isNonNegative);
+  }
+
+  void _markNeedResolution() {
+    _resolvedPadding = null;
+    markNeedsLayout();
+  }
+
+  /// The amount to pad the child in each dimension.
+  ///
+  /// If this is set to an [EdgeInsetsDirectional] object, then [textDirection]
+  /// must not be null.
+  EdgeInsetsGeometry get padding => _padding;
+  EdgeInsetsGeometry _padding;
+  set padding(EdgeInsetsGeometry value) {
+    assert(value != null);
+    assert(value.isNonNegative);
+    if (_padding == value) {
+      return;
+    }
+    _padding = value;
+    _markNeedResolution();
+  }
+
+  /// The text direction with which to resolve [padding].
+  ///
+  /// This may be changed to null, but only after the [padding] has been changed
+  /// to a value that does not depend on the direction.
+  TextDirection? get textDirection => _textDirection;
+  TextDirection? _textDirection;
+  set textDirection(TextDirection? value) {
+    if (_textDirection == value) {
+      return;
+    }
+    _textDirection = value;
+    _markNeedResolution();
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) {
+    _resolve();
+    final double totalHorizontalPadding =
+        _resolvedPadding!.left + _resolvedPadding!.right;
+    final double totalVerticalPadding =
+        _resolvedPadding!.top + _resolvedPadding!.bottom;
+    if (child != null) {
+      // Relies on double.infinity absorption.
+      return child!.getMinIntrinsicWidth(
+              math.max(0.0, height - totalVerticalPadding)) +
+          totalHorizontalPadding;
+    }
+    return totalHorizontalPadding;
+  }
+
+  @override
+  double computeMaxIntrinsicWidth(double height) {
+    _resolve();
+    final double totalHorizontalPadding =
+        _resolvedPadding!.left + _resolvedPadding!.right;
+    final double totalVerticalPadding =
+        _resolvedPadding!.top + _resolvedPadding!.bottom;
+    if (child != null) {
+      // Relies on double.infinity absorption.
+      return child!.getMaxIntrinsicWidth(
+              math.max(0.0, height - totalVerticalPadding)) +
+          totalHorizontalPadding;
+    }
+    return totalHorizontalPadding;
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) {
+    _resolve();
+    final double totalHorizontalPadding =
+        _resolvedPadding!.left + _resolvedPadding!.right;
+    final double totalVerticalPadding =
+        _resolvedPadding!.top + _resolvedPadding!.bottom;
+    if (child != null) {
+      // Relies on double.infinity absorption.
+      return child!.getMinIntrinsicHeight(
+              math.max(0.0, width - totalHorizontalPadding)) +
+          totalVerticalPadding;
+    }
+    return totalVerticalPadding;
+  }
+
+  @override
+  double computeMaxIntrinsicHeight(double width) {
+    _resolve();
+    final double totalHorizontalPadding =
+        _resolvedPadding!.left + _resolvedPadding!.right;
+    final double totalVerticalPadding =
+        _resolvedPadding!.top + _resolvedPadding!.bottom;
+    if (child != null) {
+      // Relies on double.infinity absorption.
+      return child!.getMaxIntrinsicHeight(
+              math.max(0.0, width - totalHorizontalPadding)) +
+          totalVerticalPadding;
+    }
+    return totalVerticalPadding;
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    _resolve();
+    assert(_resolvedPadding != null);
+    if (child == null) {
+      return constraints.constrain(Size(
+        _resolvedPadding!.left + _resolvedPadding!.right,
+        _resolvedPadding!.top + _resolvedPadding!.bottom,
+      ));
+    }
+    final BoxConstraints innerConstraints =
+        constraints.deflate(_resolvedPadding!);
+    final Size childSize = child!.getDryLayout(innerConstraints);
+    return constraints.constrain(Size(
+      _resolvedPadding!.left + childSize.width + _resolvedPadding!.right,
+      _resolvedPadding!.top + childSize.height + _resolvedPadding!.bottom,
+    ));
+  }
+
+  @override
+  void performLayout() {
+    final BoxConstraints constraints = this.constraints;
+    _resolve();
+    assert(_resolvedPadding != null);
+    if (child == null) {
+      size = constraints.constrain(Size(
+        _resolvedPadding!.left + _resolvedPadding!.right,
+        _resolvedPadding!.top + _resolvedPadding!.bottom,
+      ));
+      return;
+    }
+    final BoxConstraints innerConstraints =
+        constraints.deflate(_resolvedPadding!);
+    child!.layout(innerConstraints, parentUsesSize: true);
+    final BoxParentData childParentData = child!.parentData! as BoxParentData;
+    childParentData.offset =
+        Offset(_resolvedPadding!.left, _resolvedPadding!.top);
+    size = constraints.constrain(Size(
+      _resolvedPadding!.left + child!.size.width + _resolvedPadding!.right,
+      _resolvedPadding!.top + child!.size.height + _resolvedPadding!.bottom,
+    ));
+  }
+
+  @override
+  void debugPaintSize(PaintingContext context, Offset offset) {
+    super.debugPaintSize(context, offset);
+    assert(() {
+      final Rect outerRect = offset & size;
+      debugPaintPadding(context.canvas, outerRect,
+          child != null ? _resolvedPadding!.deflateRect(outerRect) : null);
+      return true;
+    }());
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding));
+    properties.add(EnumProperty<TextDirection>('textDirection', textDirection,
+        defaultValue: null));
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (super.hitTest(result, position: position)) {
+      return true;
+    }
+    final Offset destination = child!.size.center(Offset.zero);
+    return result.addWithRawTransform(
+      transform: MatrixUtils.forceToPoint(destination),
+      position: destination,
+      hitTest: (BoxHitTestResult result, Offset position) {
+        assert(position == destination);
+        return child!.hitTest(result, position: destination);
+      },
+    );
+  }
+}
+
 // DragHandle for BottomSheet rendered if the sheet is draggable
 class _DragHandle extends StatelessWidget {
   const _DragHandle({required this.onSemanticsTap});
@@ -365,11 +715,12 @@ class _DragHandle extends StatelessWidget {
           horizontal: 10,
         ),
         child: Semantics(
-          namesRoute: true,
-          label: 'bar',
+          // namesRoute: true,
+          label: 'Drag Handle',
           container: true,
-          enabled: true,
+          // enabled: true,
           onTap: onSemanticsTap,
+          onTapHint: 'Close Bottom Sheet',
           child: Padding(
             padding: const EdgeInsets.all(1),
             child: Container(
@@ -795,9 +1146,10 @@ class ModalBottomSheetRoute<T> extends PopupRoute<T> {
                     Navigator.pop(context);
                   }
                 },
-                namesRoute: true,
+                // namesRoute: true,
                 container: true,
-                label: 'Close Bottom Sheet',
+                label: 'Scrim',
+                onTapHint: 'Close Bottom Sheet',
                 child: Container(
                   height: blankSpaceConstraints.maxHeight - sheetHeight,
                 ),

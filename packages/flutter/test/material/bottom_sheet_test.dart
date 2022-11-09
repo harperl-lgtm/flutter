@@ -839,6 +839,73 @@ void main() {
     semantics.dispose();
   });
 
+  testWidgets('modal BottomSheet with drag handle has semantics',
+      (WidgetTester tester) async {
+    final SemanticsTester semantics = SemanticsTester(tester);
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        key: scaffoldKey,
+        body: const Center(child: Text('body')),
+      ),
+    ));
+
+    showModalBottomSheet<void>(
+        context: scaffoldKey.currentContext!,
+        builder: (BuildContext context) {
+          return const Text('BottomSheet');
+        });
+
+    await tester.pump(); // bottom sheet show animation starts
+    await tester.pump(const Duration(seconds: 1)); // animation done
+
+    expect(
+        semantics,
+        hasSemantics(
+            TestSemantics.root(
+              children: <TestSemantics>[
+                TestSemantics.rootChild(
+                  children: <TestSemantics>[
+                    TestSemantics(
+                      children: <TestSemantics>[
+                        TestSemantics(
+                          label: 'Scrim',
+                          textDirection: TextDirection.ltr,
+                          actions: 1,
+                        ),
+                        TestSemantics(
+                          label: 'Dialog',
+                          textDirection: TextDirection.ltr,
+                          flags: <SemanticsFlag>[
+                            SemanticsFlag.scopesRoute,
+                            SemanticsFlag.namesRoute,
+                          ],
+                          children: <TestSemantics>[
+                            TestSemantics(
+                              label: 'Drag Handle',
+                              textDirection: TextDirection.ltr,
+                              actions: 1,
+                            ),
+                            TestSemantics(
+                              label: 'BottomSheet',
+                              textDirection: TextDirection.ltr,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    TestSemantics(),
+                  ],
+                ),
+              ],
+            ),
+            ignoreTransform: true,
+            ignoreRect: true,
+            ignoreId: true));
+    semantics.dispose();
+  });
+
   testWidgets('Verify that visual properties are passed through',
       (WidgetTester tester) async {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -968,6 +1035,91 @@ void main() {
                             SemanticsFlag.namesRoute,
                           ],
                           children: <TestSemantics>[
+                            TestSemantics(
+                              flags: <SemanticsFlag>[
+                                SemanticsFlag.hasImplicitScrolling
+                              ],
+                              children: <TestSemantics>[
+                                TestSemantics(
+                                  label: 'BottomSheet',
+                                  textDirection: TextDirection.ltr,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    TestSemantics(),
+                  ],
+                ),
+              ],
+            ),
+            ignoreTransform: true,
+            ignoreRect: true,
+            ignoreId: true));
+    semantics.dispose();
+  });
+
+  testWidgets(
+      'modal BottomSheet with drag handle and scrollController has semantics',
+      (WidgetTester tester) async {
+    final SemanticsTester semantics = SemanticsTester(tester);
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        key: scaffoldKey,
+        body: const Center(child: Text('body')),
+      ),
+    ));
+
+    showModalBottomSheet<void>(
+      context: scaffoldKey.currentContext!,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          builder: (_, ScrollController controller) {
+            return SingleChildScrollView(
+              controller: controller,
+              child: const Text('BottomSheet'),
+            );
+          },
+        );
+      },
+    );
+
+    await tester.pump(); // bottom sheet show animation starts
+    await tester.pump(const Duration(seconds: 1)); // animation done
+
+    expect(
+        semantics,
+        hasSemantics(
+            TestSemantics.root(
+              children: <TestSemantics>[
+                TestSemantics.rootChild(
+                  children: <TestSemantics>[
+                    TestSemantics(
+                      children: <TestSemantics>[
+                        TestSemantics(
+                          label: 'Scrim',
+                          textDirection: TextDirection.ltr,
+                          actions: 1,
+                        ),
+                        TestSemantics(
+                          label: 'Dialog',
+                          textDirection: TextDirection.ltr,
+                          flags: <SemanticsFlag>[
+                            SemanticsFlag.scopesRoute,
+                            SemanticsFlag.namesRoute,
+                          ],
+                          children: <TestSemantics>[
+                            TestSemantics(
+                              label: 'Drag Handle',
+                              textDirection: TextDirection.ltr,
+                              actions: 1,
+                            ),
                             TestSemantics(
                               flags: <SemanticsFlag>[
                                 SemanticsFlag.hasImplicitScrolling
@@ -1543,6 +1695,7 @@ void main() {
       final BuildContext context = tester.element(find.text('Test'));
       showModalBottomSheet<void>(
         context: context,
+        isScrollControlled: true,
         builder: (BuildContext context) {
           return const Placeholder();
         },
@@ -1585,6 +1738,7 @@ void main() {
       final BuildContext context = tester.element(find.text('Test'));
       showModalBottomSheet<void>(
         context: context,
+        isScrollControlled: true,
         builder: (BuildContext context) {
           return const Placeholder();
         },
@@ -1622,6 +1776,7 @@ void main() {
       final BuildContext context = tester.element(find.text('Test'));
       showModalBottomSheet<void>(
         context: context,
+        isScrollControlled: true,
         builder: (BuildContext context) {
           return const Placeholder();
         },
